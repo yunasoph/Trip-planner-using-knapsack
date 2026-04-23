@@ -13,6 +13,7 @@ bool TripPlanner::loadAttractions(const string& filename) {
         return false;
     }
 
+    attractions.clear();
     string line, name, costStr, ratingStr;
     
     // Read line by line
@@ -21,12 +22,20 @@ bool TripPlanner::loadAttractions(const string& filename) {
         if (getline(ss, name, ',') && 
             getline(ss, costStr, ',') && 
             getline(ss, ratingStr, ',')) {
-            
-            Attraction attr;
-            attr.name = name;
-            attr.cost = stoi(costStr);
-            attr.rating = stoi(ratingStr);
-            attractions.push_back(attr);
+            try {
+                Attraction attr;
+                attr.name = name;
+                attr.cost = stoi(costStr);
+                attr.rating = stoi(ratingStr);
+
+                if (attr.cost > 0 && attr.rating >= 0) {
+                    attractions.push_back(attr);
+                } else {
+                    cerr << "Warning: Skipping invalid row: " << line << endl;
+                }
+            } catch (const exception&) {
+                cerr << "Warning: Skipping malformed row: " << line << endl;
+            }
         }
     }
     file.close();
