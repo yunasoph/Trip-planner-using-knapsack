@@ -6,6 +6,19 @@
 
 using namespace std;
 
+namespace {
+string trim(const string& value) {
+    const string whitespace = " \t\r\n";
+    const size_t start = value.find_first_not_of(whitespace);
+    if (start == string::npos) {
+        return "";
+    }
+
+    const size_t end = value.find_last_not_of(whitespace);
+    return value.substr(start, end - start + 1);
+}
+}
+
 bool TripPlanner::loadAttractions(const string& filename) {
     ifstream file(filename);
     if (!file.is_open()) {
@@ -18,15 +31,19 @@ bool TripPlanner::loadAttractions(const string& filename) {
     
     // Read line by line
     while (getline(file, line)) {
+        if (trim(line).empty()) {
+            continue;
+        }
+
         stringstream ss(line);
         if (getline(ss, name, ',') && 
             getline(ss, costStr, ',') && 
             getline(ss, ratingStr, ',')) {
             try {
                 Attraction attr;
-                attr.name = name;
-                attr.cost = stoi(costStr);
-                attr.rating = stoi(ratingStr);
+                attr.name = trim(name);
+                attr.cost = stoi(trim(costStr));
+                attr.rating = stoi(trim(ratingStr));
 
                 if (attr.cost > 0 && attr.rating >= 0) {
                     attractions.push_back(attr);
